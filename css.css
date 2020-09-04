@@ -127,6 +127,7 @@ border-color: #f00;
 
 #content {
 float: left;
+height: 600px;
 width: 400px;
 margin: 10px 0 0 10px;
 }
