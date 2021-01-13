@@ -11,10 +11,11 @@ border: none;
 
 #container {
 width:600px;
-height:800px;
+height:auto;
 margin:0 auto;
 background-color: #fff;
 border: solid 5px #f7f7f7;
+overflow:auto
 }
 
 #header {
