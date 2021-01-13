@@ -12,6 +12,7 @@ border: none;
 #container {
 width:600px;
 height:auto;
+min-height: 800px;  
 margin:0 auto;
 background-color: #fff;
 border: solid 5px #f7f7f7;
