@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(to right, #6dd5ed, #2193b0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+        }
+        .container {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        .weather h2 {
+            font-size: 2em;
+            margin: 10px 0;
+        }
+        .weather p {
+            font-size: 1.2em;
+            margin: 5px 0;
+        }
+        .loading {
+            display: none;
+        }
+        .weather-icon {
+            font-size: 4em;
+            margin: 10px 0;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-ybR+EMWswLp9V2s0oJM21ievoGkS1sMu4IRRaMBrY6QzI01VH0vZhFJazwRiCmX4jZUm6dFvC0OMnuVntJgsjA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="container">
+        <h1>Weather</h1>
+        <div class="weather" id="weather">
+            <div class="loading" id="loading">Loading...</div>
+            <!-- Weather info will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            getLocationWeather();
+        });
+
+        function getLocationWeather() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    fetchWeatherByCoordinates(lat, lon);
+                }, showError);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function fetchWeatherByCoordinates(lat, lon) {
+            const apiKey = '083354a58b10242105aacd659d514974'; // Replace with your OpenWeatherMap API key
+            const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+            fetchWeather(url);
+        }
+
+        async function fetchWeather(url) {
+            const loadingDiv = document.getElementById('loading');
+            loadingDiv.style.display = 'block';
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                displayWeather(data);
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        function displayWeather(data) {
+            const weatherDiv = document.getElementById('weather');
+            const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString();
+            const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString();
+
+            const iconCode = data.weather[0].icon;
+            const iconUrl = `http://openweathermap.org/img/w/${iconCode}.png`;
+
+            weatherDiv.innerHTML = `
+                <h2>${data.name}</h2>
+                <img src="${iconUrl}" alt="Weather Icon" class="weather-icon">
+                <p>Temperature: ${data.main.temp} °C</p>
+                <p>Weather: ${data.weather[0].description}</p>
+                <p>Humidity: ${data.main.humidity} %</p>
+                <p>Wind Speed: ${data.wind.speed} m/s</p>
+                <p>Min Temperature: ${data.main.temp_min} °C</p>
+                <p>Max Temperature: ${data.main.temp_max} °C</p>
+                <p>Pressure: ${data.main.pressure} hPa</p>
+                <p>Visibility: ${data.visibility / 1000} km</p>
+                <p>Feels Like: ${data.main.feels_like} °C</p>
+                <p>Sunrise: ${sunrise}</p>
+                <p>Sunset: ${sunset}</p>
+            `;
+        }
+
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>
+
